@@ -1,4 +1,11 @@
-export function Figure({ wide = false, children }) {
+import { ReactNode } from "react";
+
+interface FigureProps {
+  wide?: boolean;
+  children: ReactNode;
+}
+
+export function Figure({ wide = false, children }: FigureProps) {
   return (
     <div
       className={`

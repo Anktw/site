@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export function A({ children, className = "", href, ...props }) {
+export function A({ children, className = "", href, ...props }: { children: React.ReactNode; className?: string; href: string }) {
   if (href[0] === "#") {
     return (
       <a

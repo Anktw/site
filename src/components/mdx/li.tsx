@@ -1,9 +1,11 @@
 // we use `[ul_&]` prefix for the <UL> variety
-export function LI({ children }) {
+export function LI({ children }: { children: React.ReactNode }) {
   return (
     <li
       className={`
     my-2
+    [&>p]:m-0
+    [&>p]:inline
     [ul_&]:relative
     [ul_&]:pl-4
     [ul_&]:before:text-gray-400
