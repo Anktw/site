@@ -12,7 +12,7 @@ export default async function RecentWritings() {
     return (
         <section className="mb-16">
             {writings.map((writing) => (
-                <Link key={writing.id} href={`/blogs/${writing.id}`} className="block group">
+                <Link key={writing.id} href={`/blogs/${writing.title.replace(/\s+/g, '-')}`} className="block group">
                     <div className="flex items-center justify-between py-3 px-4 -mx-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
                         <div className="flex-1">
                             <h3 className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
@@ -32,6 +32,13 @@ export default async function RecentWritings() {
                     </div>
                 </Link>
             ))}
+            <Link
+                href="/writings"
+                className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors mt-4"
+            >
+                View all writings
+                <ArrowUpRight className="h-3 w-3 ml-1" />
+            </Link>
         </section>
     );
 }

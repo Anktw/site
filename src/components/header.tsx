@@ -118,10 +118,9 @@ const Header = () => {
                         </button>
                     </div>
                 </div>
-            </div>
-            {/* Mobile Navigation */}
+            </div>            {/* Mobile Navigation */}
             <div
-                className={`fixed top right-0 h-screen w-1/2 md:w-64 z-50 transform transition-transform duration-300 ease-in-out dark:bg-black bg-white border-2 ${isOpen ? "translate-x-0" : "translate-x-full"
+                className={`fixed top right-0 h-screen w-1/2 md:w-64 z-50 transform transition-transform duration-300 ease-in-out dark:bg-black bg-white border-2 md:hidden ${isOpen ? "translate-x-0" : "translate-x-full"
                     }`}
             >
                 {/* Close button */}
