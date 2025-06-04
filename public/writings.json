@@ -1,0 +1,22 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "date": "March 2, 2025",
+      "title": "How to Dockerize a FastAPI and PostgreSQL App",
+      "desc": "Just a simple guide on how to dockerize a FastAPI application with PostgreSQL."
+    },
+    {
+      "id": 2,
+      "date": "March 8, 2025",
+      "title": "How to Create a Markdown Blog in Next.js",
+      "desc": "Building a blog using Next.js and Markdown is fun and easy. Here's how to do it."
+    },
+    {
+      "id": 3,
+      "date": "March 15, 2025",
+      "title": "How to Create Your First FastAPI + PostgreSQL App",
+      "desc": "You should use FastAPI and PostgreSQL for your next project. It's fast, efficient, and easy."
+    }
+  ]
+}
