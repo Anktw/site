@@ -1,8 +1,8 @@
-import { getWritings } from "@/lib/writings"
+import { getWritings } from "@/lib/AllWritings"
 import { ArrowUpRight, Calendar } from "lucide-react"
 import Link from "next/link";
 
-export default async function RecentWritings() {
+export default async function Writings() {
     const writings = await getWritings();
 
     if (!writings || writings.length === 0) {
@@ -32,13 +32,6 @@ export default async function RecentWritings() {
                     </div>
                 </Link>
             ))}
-            <Link
-                href="/writings"
-                className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors mt-4"
-            >
-                View all writings
-                <ArrowUpRight className="h-3 w-3 ml-1" />
-            </Link>
         </section>
     );
 }

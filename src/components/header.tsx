@@ -96,7 +96,7 @@ const Header = () => {
 
                         {/* Burger Menu Button */}
                         <button
-                            className="relative w-8 h-8 md:hidden z-50 animate-fadeInRight justify-center align-middle"
+                            className="relative w-8 h-8 md:hidden z-50 animate-fadeInRight justify-center align-middle cursor-pointer"
                             onClick={(e) => {
                                 e.preventDefault();
                                 toggleMenu();
@@ -125,7 +125,7 @@ const Header = () => {
             >
                 {/* Close button */}
                 <button
-                    className="absolute top-4 right-4 z-50 focus:outline-none"
+                    className="absolute top-4 right-4 z-50 focus:outline-none cursor-pointer"
                     onClick={toggleMenu}
                 >
                     <span className="sr-only">Close menu</span>
