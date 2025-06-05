@@ -15,6 +15,7 @@ import { Caption } from "@/components/mdx/caption"
 import { Callout } from "@/components/mdx/callout"
 import { Ref, FootNotes, FootNote } from "@/components/mdx/footnotes"
 import { Blockquote as blockquote } from "@/components/mdx/blockquote"
+import { Spacer } from "@/components/mdx/spacer"
 
 export function useMDXComponents(components: {
   [component: string]: React.ComponentType;
@@ -38,8 +39,8 @@ export function useMDXComponents(components: {
     Snippet,
     Caption,
     Callout,
-    Ref,
-    FootNotes,
+    Ref,    FootNotes,
     FootNote,
+    Spacer,
   };
 }
