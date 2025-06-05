@@ -1,13 +1,27 @@
 [
     {
+        "id": 1,
+        "title": "Nextjs_Dashboard",
+        "desc": "I was learning Next.js and it was provided by Next.js documentation",
+        "livelink": "https://dashboard.unkit.site",
+        "github": "https://github.com/Anktw/nextjs-dashboard"
+    },
+    {
         "id": 2,
+        "title": "CarpeDiem",
+        "desc": "Visualize your life in weeks and make every moment count!",
+        "livelink": "https://carpediem.unkit.site",
+        "github": "https://github.com/Anktw/carpediem"
+    },
+    {
+        "id": 5,
         "title": "CertificateGenerator",
         "desc": "Generate, verify, and share certificates, made with Next.js and MongoDB.",
         "livelink": "https://certificate.unkit.site/certificate",
         "github": "https://github.com/Anktw/certificatebuilder"
     },
     {
-        "id": 3,
+        "id": 7,
         "title": "AutoNext",
         "desc": "A VS Code extension to automate `npm run dev` and browser launch for Next.js projects",
         "livelink": "https://autonext.unkit.site",
@@ -16,24 +30,37 @@
         "download": "https://marketplace.visualstudio.com/items?itemName=unkit.auto-next"
     },
     {
-        "id": 5,
+        "id": 9,
+        "title": "Site_archived",
+        "desc": "My old personal website, now archived. It was built with Next.js and hosted on Vercel.",
+        "livelink": "https://archived.unkit.site",
+        "github": "https://github.com/anktw/site_archived"
+    },
+    {
+        "id": 11,
         "title": "LockedIn",
-        "desc": "A productivity app that helps you manage tasks efficiently with time tracking, prioritization with daily motivational quotes.",
+        "desc": "A productivity app that helps you manage tasks efficiently with time tracking, prioritization with daily motivational quotes and background syncing to cloud.",
         "livelink": "https://lockedin.unkit.site/",
         "github": "https://github.com/Anktw/mayajal"
     },
     {
-        "id": 8,
+        "id": 15,
         "title": "Accounts",
         "desc": "Frontend of Backend project (which was built using FastAPI) using Next.js",
         "livelink": "https://accounts.unkit.site",
         "github": "https://github.com/anktw/accounts"
     },
     {
-        "id":9,
+        "id": 19,
         "title": "Backend",
         "desc": "Backend API most of my projects use, built with FastAPI and PostgreSQL.",
         "livelink": "https://accounts.unkit.site",
         "github": "https://github.com/anktw/backend"
+    },
+    {
+        "id": 21,
+        "title": "Backend-Docker",
+        "desc": "Dockerized version of my backend project, made using FastAPI and PostgreSQL and Redis",
+        "github": "https://github.com/anktw/backend-docker"
     }
 ]

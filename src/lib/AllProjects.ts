@@ -2,8 +2,10 @@ export interface Projects {
   id: number;
   title: string;
   desc: string;
-  livelink: string;
+  livelink?: string;
   github: string;
+  download?: string;
+  filetype?: string;
 }
 
 export async function getProjects(): Promise<Projects[]> {

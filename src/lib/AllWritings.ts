@@ -3,7 +3,6 @@ export interface Writings {
   title: string;
   desc: string;
   date: string;
-  category: string;
 }
 
 export async function getWritings(): Promise<Writings[]> {
