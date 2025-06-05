@@ -61,7 +61,7 @@ const Header = () => {
 
     return (
         <header
-            className={`sticky top-0 z-50 bg-white/80 dark:bg-black/80 border-b border-gray-200 dark:border-gray-800 transition-transform duration-500 ${visible ? "translate-y-0" : "-translate-y-full"
+            className={`fixed top-0 w-full shadow-md z-30 transition-transform duration-500 bg-white/80 dark:bg-black/80 border-b border-gray-200 dark:border-gray-800 ${visible ? "translate-y-0" : "-translate-y-full"
                 }`}
         >
             <div className="max-w-2xl mx-auto px-4 sm:px-6">
