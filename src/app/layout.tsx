@@ -6,6 +6,7 @@ import { Footer } from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import {unstable_ViewTransition as ViewTransition } from "react";
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -26,7 +27,9 @@ export default function RootLayout({
       >
           <Header />
           <div className="min-h-screen mt-6 md:mt-16">
-            {children}
+            <ViewTransition>
+              {children}
+            </ViewTransition>
           </div>
           <Toaster/>
           <Footer />
