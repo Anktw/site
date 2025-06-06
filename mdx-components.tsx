@@ -16,6 +16,7 @@ import { Callout } from "@/components/mdx/callout"
 import { Ref, FootNotes, FootNote } from "@/components/mdx/footnotes"
 import { Blockquote as blockquote } from "@/components/mdx/blockquote"
 import { Spacer } from "@/components/mdx/spacer"
+import { YouTube } from "@/components/mdx/youtube";
 
 export function useMDXComponents(components: {
   [component: string]: React.ComponentType;
@@ -42,5 +43,6 @@ export function useMDXComponents(components: {
     Ref,    FootNotes,
     FootNote,
     Spacer,
+    YouTube,
   };
 }
