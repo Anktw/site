@@ -10,16 +10,16 @@ These act as middleware, validating and forwarding requests to the FastAPI backe
 
 # 🧾 Auth Features
 ## 🔐 User Registration ( And Otp Verification)
-<Image link="/images/projects/accounts1.png" alt="Signup page" height="400" width="300" />
+<Image link="/images/projects/accounts/accounts1.png" alt="Signup page" height="400" width="300" />
 ### Using Email
 `POST /api/auth/start-registration`
 This feature allows users to register by providing their email address. An OTP (One-Time Password) is sent to the user's email for verification.
-<Image link="/images/projects/accounts2.png" alt="OTP Verification" height="400" width="300" />
+<Image link="/images/projects/accounts/accounts2.png" alt="OTP Verification" height="400" width="300" />
 `POST /api/auth/verify-email` After OTP verification, `POST /api/auth/set-session` this automatically signs the user in.
 This feature I like very much and remember building for days to make it work perfectly.
 ### Using Google and Github
 Just Simple implementation of Google `POST /api/auth/google` and Github `POST /api/auth/github` OAuth login. [backend](././backend) handles the OAuth flow and returns user data to the frontend.
-<Image link="/images/projects/accounts3.png" alt="Google Login" height="400" width="1000" />
+<Image link="/images/projects/accounts/accounts3.png" alt="Google Login" height="400" width="1000" />
 
 ## 🔓 Login
 ### Using Email/Username and Password
@@ -29,15 +29,15 @@ The [backend](././backend) handles the OAuth flow in this case as well.
 
 ## 🔁 Reset Password ( Request + Confirm )
 `POST /api/auth/request-password-reset` and `POST /api/auth/verify-password-reset` Reset password by requesting a password reset OTP via email/username.
-<Image link="/images/projects/accounts4.png" alt="Request Password Reset" height="400" width="300" />
-<Image link="/images/projects/accounts5.png" alt="Reset Password" height="400" width="300" />
+<Image link="/images/projects/accounts/accounts4.png" alt="Request Password Reset" height="400" width="300" />
+<Image link="/images/projects/accounts/accounts5.png" alt="Reset Password" height="400" width="300" />
 `POST /api/auth/reset-password` After OTP verification, users can set a new password.
-<Image link="/images/projects/accounts6.png" alt="Reset Password" height="400" width="300" />
+<Image link="/images/projects/accounts/accounts6.png" alt="Reset Password" height="400" width="300" />
 
 ## 🔑 Session and Account Management
 `GET /api/user/me` - Retrieve the current user's profile information.
 `POST /api/user/me` - Update the current user's profile information.
-<Image link="/images/projects/accounts7.png" alt="Dashboard Page" height="600" width="1000" />
+<Image link="/images/projects/accounts/accounts7.png" alt="Dashboard Page" height="600" width="1000" />
 `POST /api/auth/refresh` The session is automatically refreshed when the user interacts with the application.
 
 ## 🚪 Logout
@@ -62,7 +62,6 @@ src/
 ├── components/              # Shared components
 │   └── ui/                  # UI component library
 ├── lib/                     # Utility libraries
-├── middleware.ts            # Next.js request middleware
+├── middleware               # Next.js request middleware
 └── utils/                   # Additional utilities
-    └── fetchWithAuth.ts     # Authenticated fetch with refresh
 ```

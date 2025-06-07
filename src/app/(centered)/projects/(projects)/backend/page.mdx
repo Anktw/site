@@ -5,7 +5,80 @@ export const metadata = {
 
 This project handles all the backend logic and database interactions for the most of my [projects](./). It is built using FastAPI, PostgreSQL, Docker and Redis.
 
-# Features
+Docker version of this project [Backend-docker](./backend-docker).
+I have deployed it on  [koyeb](https://app.koyeb.com/) which does not support docker deployment for postgresql, so I have to use a separate PostgreSQL service.
 
-# Folder Structure
+---
+
+# 🧑‍💻 Technical Details
+Built with [FastAPI](https://fastapi.tiangolo.com/) and [PostgreSQL](https://www.postgresql.org/).
+
+Used [Redis](https://redis.io/) for caching data like OTPs, session management, and other temporary data.
+
+Used [SQLAlchemy](https://www.sqlalchemy.org/) for DB interactions, with [Alembic](https://alembic.sqlalchemy.org/) to manage schema migrations.
+
+Integrated [psycopg2-binary](https://pypi.org/project/psycopg2-binary/) as the PostgreSQL driver.
+
+Password hashing using [argon2-cffi](https://pypi.org/project/argon2-cffi/), and built secure user authentication flows with [Authlib](https://docs.authlib.org/en/latest/), supporting OAuth2 (Google, GitHub).
+
+[Pydantic](https://pydantic-docs.helpmanual.io/) for data validation and serialization throughout the API layers.
+
+Email input validation using [email-validator](https://pypi.org/project/email-validator/)
+
+Utilized [Starlette](https://www.starlette.io/) features for middleware and background task management.
+
+Built developer tools and CLI utilities with [Typer](https://typer.tiangolo.com/) to streamline database migrations, test user creation, and administrative tasks.
+
+---
+
+# 😎 Features
+## 🔐 Auth Features
+### 🔑 User Registration (And Otp Verification)
+**`@router.post("/start-registration")`**: Start User Registration -> sends an OTP to the user's email -> stores temporary data in Redis(like hashed password, email, username etc.).
+
+**`@router.post("/verify-otp")`**: Email OTP Verification -> verifies the OTP sent to the user's email -> if valid, creates a new user in the database -> Deletes temporary data from Redis.
+**`@router.post("/resend-otp")`**: Resend OTP -> generates and sends a new OTP to the user's email.
+
+### 🔓 User Login
+**`@router.post("/login")`**: User Login -> verifies user credentials -> generates and returns JWT token.
+
+### 🔁 Reset Password
+**`@router.post("/request-password-reset")`**: Request Password Reset -> sends a password reset link to the user's email if the user exists.
+**`@router.post("/resend-reset-otp")`**: Resend Reset OTP -> generates and sends a new OTP to the user's email for password reset.
+**`@router.post("/verify-reset-otp")`**: Verify Reset OTP -> verifies the OTP sent to the user's email for password reset -> if valid, allows the user to reset their password.
+
+### 🔄 Refresh Token
+**`@router.post("/refresh", response_model=Token)`**: Refresh JWT Token -> verifies the refresh token and issues a new access token.
+
+## OAuth2.0
+### Google and GitHub Login
+**`@router.get("/google")`**: Google OAuth2 Login -> redirects to Google for authentication.
+**`@router.get("/google/callback")`**: Google OAuth2 Callback -> handles the callback from Google after authentication -> retrieves user information and creates a new user in the database if not exists.
+**`@router.get("/github")`**: GitHub OAuth2 Login -> redirects to GitHub for authentication.
+**`@router.get("/github/callback")`**: GitHub OAuth2 Callback -> handles the callback from GitHub after authentication -> retrieves user information and creates a new user in the database if not exists.
+
+## 🔑 Session and Account Management
+**`@router.get("/me", response_model=User)`**: Get Current User -> retrieves the current user's profile information.
+**`@router.post("/me", response_model=User)`**: Update Current User -> updates the current user's profile information.
+
+---
+
+# 📈 Scalability
+It's so easy to create new API endpoints for any new feature or service. For any new project, It's just a matter of creating a new FastAPI router and adding it to the main application.
+Since I have multiple projects, which requires user authentication, This project allows me to reuse the same authentication and user management app across different projects.
+
+---
+
+# 📂 Folder Structure
+```
+├── app/
+│   ├── api/
+│   │   └── v1/
+│   ├── core/
+│   ├── crud/
+│   ├── db/
+│   │   └── models/
+│   ├── schemas/
+│   ├── services/
+│   └── utils/
 ```
