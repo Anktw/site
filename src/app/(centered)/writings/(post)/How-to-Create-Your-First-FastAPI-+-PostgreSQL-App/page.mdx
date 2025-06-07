@@ -2,3 +2,368 @@ export const metadata = {
     title: "How to Create Your First FastAPI + PostgreSQL App",
     description: "This guide will walk you through the steps to create a simple FastAPI app with PostgreSQL, including setting up the project, creating database models, and building RESTful API endpoints.",
 }
+
+How to build a basic FastAPI application that connects to a PostgreSQL database — and includes migrations with Alembic.
+
+# Step 1: Setting Up Your Project
+## Creating folders
+make a folder named `fastapi-postgres-app` and navigate into it:
+<Terminal folder="~/">
+mkdir fastapi-postgres-app
+cd fastapi-postgres-app
+</Terminal>
+
+## Create virtual environment
+Create a virtual environment to isolate your project dependencies:
+<Terminal folder="~/fastapi-postgres-app">
+python -m venv .venv
+source .venv/bin/activate  # On Windows use .venv\Scripts\activate
+</Terminal>
+
+## Install Required Dependencies
+
+- Fastapi[all]: The FastAPI framework with all optional dependencies.
+- SQLAlchemy: The ORM for database interactions.
+- Alembic: The migration tool for SQLAlchemy.
+- psycopg2-binary: The PostgreSQL adapter for Python.
+- Pydantic: For data validation and settings management. 
+
+You will know about these libraries in detail later in this article.
+
+<Terminal folder="~/fastapi-postgres-app">
+pip install fastapi[all] sqlalchemy alembic psycopg2-binary pydantic
+</Terminal>
+
+You can also create a `requirements.txt` file and write dependencies automatically by running:
+
+<Terminal folder="~/fastapi-postgres-app">
+pip freeze > requirements.txt
+</Terminal>
+
+## Project Structure
+Create following folders and files in your project directory:
+> Note: don't create alembic files and folders yet, we will do that in later steps. It is just for better understanding of project structure.
+> So you dont have to create `alembic.ini`, `alembic` folder, `versions` folder, etc. yet.
+> Also don't create services and utils folders, they are optional and not necessary for this basic app.
+```
+fastapi-postgres-app/
+│
+├── app/
+│   ├── api/                            # (API routers)
+│   │   ├── v1/
+│   │   │   ├── __init__.py
+│   │   │   ├── api.py
+│   ├── core/                          # (Core functionality)
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   ├── crud/                          # (CRUD operations)
+│   │   ├── __init__.py
+│   │   └── user.py
+│   ├── db/                            # (Database related files)
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── session.py
+│   │   └── models/
+│   │       └── user.py
+│   ├── schemas/                       # (Pydantic schemas)
+│   │   ├── __init__.py
+│   │   └── user.py
+│   ├── services/                      # (optional, You don't have to create this folder,)
+│   ├── utils/                         # (Optional, Utility functions)
+│   ├── main.py                        # (Main entry point of the application)
+│   └── __init__.py
+│
+├── alembic/  (for migrations)
+├── .env
+└── requirements.txt
+```
+
+# Step 2: Environment Setup
+Edit the `.env` file in the root of your project to store environment variables. This file will contain sensitive information like your database URL.
+
+<Terminal folder="~/fastapi-postgres-app/.env">
+DATABASE_URL=postgresql://user:password@localhost/database_name
+</Terminal>
+
+> replace `user`, `password`, and `database_name` with your PostgreSQL credentials.
+> In case of localhost, use `localhost` for cloud database connection, you will have to use the connection string provided by your cloud database provider.
+
+Here I am using `userdb` as the database name.
+
+**Now Create a Configuration Class**:
+Edit the `app/core/config.py` file to read the environment variables and create a configuration class using Pydantic.
+<Terminal folder="~/fastapi-postgres-app/app/core/config.py">
+{`from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class Settings(BaseSettings):
+    DATABASE_URL: str
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        from_attributes=True
+    )
+
+settings = Settings()`}
+</Terminal>
+
+
+# Step 3: Connect to PostgreSQL
+Edit the `app/db/session.py` file to create a database session using SQLAlchemy and ` app/db/base.py` to define the base model for your database models.`
+
+<Terminal folder="~/fastapi-postgres-app/app/db/base.py">
+{`from sqlalchemy.orm import DeclarativeBase
+
+class Base(DeclarativeBase):
+    pass`}
+</Terminal>
+
+<Terminal folder="~/fastapi-postgres-app/app/db/session.py">
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app.core.config import settings
+
+engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+</Terminal>
+
+# Step 4: Define A Database Model
+Create a user model in `app/db/models/user.py`:
+<Terminal folder="~/fastapi-postgres-app/app/db/models/user.py">
+{`from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import validates
+from app.db.base import Base
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    first_name = Column(String, nullable=True, default=None)
+    last_name = Column(String, nullable=True, default=None)
+
+    @validates('email')
+    def lowercase_email(self, key, email):
+        return email.lower()`}
+</Terminal>
+
+# Step 5: Create Pydantic Schemas
+Create a Pydantic schema for the user model in `app/schemas/user.py`:
+
+<Terminal folder="~/fastapi-postgres-app/app/schemas/user.py">
+{`from pydantic import BaseModel, EmailStr
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    first_name: str | None = None
+    last_name: str | None = None
+
+class Config:
+    from_attributes = True`}
+</Terminal>
+
+# Step 6: Create CRUD Operations
+Create a CRUD operation for the user model in `app/crud/user.py`:
+
+<Terminal folder="~/fastapi-postgres-app/app/crud/user.py">
+{`from sqlalchemy.orm import Session
+from app.db.models.user import User
+from app.schemas.user import UserCreate
+
+def get_user_by_email(db: Session, email: str):
+    return db.query(User).filter(User.email == email).first()
+
+def create_user(db: Session, user: UserCreate):
+    db_user = User(email=user.email)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user`}
+</Terminal>
+
+# Step 7: Create API Endpoints
+Create API endpoints in `app/api/v1/api.py`:
+
+<Terminal folder="~/fastapi-postgres-app/app/api/v1/api.py">
+{`from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.db.models.user import User
+from app.db.session import SessionLocal
+from app.schemas.user import UserCreate
+from app.crud.user import get_user_by_email
+router = APIRouter()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@router.post("/registration")
+def registration(payload: UserCreate, db: Session = Depends(get_db)):
+    email = payload.email.lower()
+
+    if get_user_by_email(db, email):
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    user = User(
+        email=email,
+        first_name=payload.first_name,
+        last_name=payload.last_name
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "message": "Registration successful",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name
+        }
+    }`}
+</Terminal>
+
+# Step 8: Create Database and Apply Alembic Migrations
+Go to pgadmin4 or any other PostgreSQL client and create a database named `userdb` (or whatever name you used in the `.env` file).
+
+> Only create the database, you don't have to create any tables or schemas, we will do that using Alembic migrations.
+
+## Initialize Alembic
+Run the following command to initialize Alembic in your project:
+<Terminal folder="~/fastapi-postgres-app">
+alembic init alembic
+</Terminal>
+This will create an `alembic` folder and an `alembic.ini` file in your project directory.
+## Configure Alembic
+Go to `alembic` folder and open `env.py` file.
+Edit the `env.py` file to include your database URL and base model:
+
+Add the following import after the existing imports: (which might be `from alembic import context`)
+
+<Terminal folder="~/fastapi-postgres-app/alembic/env.py">
+from app.db.base import Base
+from app.core.config import settings
+from app.db.models import user 
+</Terminal>
+
+Then find the line that sets the `config.set_main_option` for `sqlalchemy.url` and set it to your database URL:
+
+Add the following line after the existing `config = context.config` line:
+
+<Terminal folder="~/fastapi-postgres-app/alembic/env.py">
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+</Terminal>
+
+Then, find the line that sets the `target_metadata` variable and set it to `Base.metadata`:
+replace the ``target_metadata = None`` line with:
+<Terminal folder="~/fastapi-postgres-app/alembic/env.py">
+target_metadata = Base.metadata
+</Terminal>
+
+Finally, your `env.py` file should look something like this:
+
+<Terminal folder="~/fastapi-postgres-app/alembic/env.py">
+{`from logging.config import fileConfig
+
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
+
+from alembic import context
+from app.db.base import Base
+from app.core.config import settings
+from app.db.models import user  
+# This imports your models
+# this is the Alembic Config object, which provides
+# access to the values within the .ini file in use.
+config = context.config
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+
+
+
+# Interpret the config file for Python logging.
+# This line sets up loggers basically.
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
+
+# add your model's MetaData object here
+# for 'autogenerate' support
+# from myapp import mymodel
+# target_metadata = mymodel.Base.metadata
+target_metadata = Base.metadata
+
+# other values from the config, defined by the needs of env.py,
+# can be acquired:
+# my_important_option = config.get_main_option("my_important_option")
+# ... etc.
+---
+---
+---
+and rest of the env.py file remains unchanged.
+`}
+</Terminal>
+
+## Create Initial Migration
+Run the following command to create an initial migration for your database models:
+<Terminal folder="~/fastapi-postgres-app">
+alembic revision --autogenerate -m "create users table"
+</Terminal>
+
+## Apply the Migration
+Run the following command to apply the migration to your database:
+<Terminal folder="~/fastapi-postgres-app">
+alembic upgrade head
+</Terminal>
+
+This will create the `users` table in your PostgreSQL database with the fields defined in your `User` model.
+
+# Step 9: Main Application File
+Edit the `app/main.py` file to include the FastAPI application and the API router:
+
+> I have aded a startup event to wait for the database to be ready before starting the application, You can remove it.
+
+<Terminal folder="~/fastapi-postgres-app/app/main.py">
+{` import time
+from sqlalchemy import text
+from sqlalchemy.exc import OperationalError
+from app.db.session import engine
+from fastapi import FastAPI
+from app.api.v1 import api
+
+app = FastAPI()
+
+@app.on_event("startup")
+def wait_for_db():
+    retries = 10
+    while retries > 0:
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            print("Database is ready!")
+            break
+        except OperationalError:
+            print("Database not ready, waiting...")
+            time.sleep(2)
+            retries -= 1
+    else:
+        raise Exception("Database connection failed after retries")
+
+app.include_router(api.router, prefix="/api", tags=["api"]) `}
+</Terminal>
+
+# Step 10: Run the FastAPI Application
+In terminal run the following command to start the FastAPI application:
+<Terminal folder="~/fastapi-postgres-app">
+fastapi dev run app/main.py
+</Terminal>
+
+# Step 11: Test the API
+You can test the API using a tool like Postman or Swagger UI.
+Open your browser and go to `http://localhost:8000/docs` to access the Swagger UI.
+Click on the `POST /api/v1/registration` endpoint and `try it out` button  to register a new user by providing an email, first name, and last name.
+
+<Callout emoji="😎" text="Congratulations! You have created your first FastAPI and PostgreSQL app " />
+
+<Image link="/images/writings/1/1.png" alt="FastAPI + PostgreSQL" height="800" width="1600" />
