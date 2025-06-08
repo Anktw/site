@@ -3,3 +3,139 @@ export const metadata = {
     description: "This guide will walk you through the steps to create a simple markdown blog using Next.js, including setting up the project, creating markdown files, and displaying them on your site.",
 }
 
+<Image link="/images/writings/3/2.png" alt="Blog Starter" height="800" width="1600" />
+
+Creating a blog with markdown is fun, With Next.js and MDX, it's easier than ever to build a fully customizable blog .
+
+Or simply Execute create-next-app to bootstrap the example:
+
+<Terminal folder="terminal">
+npx create-next-app@latest projectname --example https://github.com/anktw/blog-starter
+</Terminal>
+
+Otherwise follow the steps below to create a markdown blog in Next.js:
+
+## Step 1: Setting Up the Project
+<Terminal folder="terminal">
+```
+npx create-next-app@latest next-blog
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack for `next dev`? ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+√ What import alias would you like configured? ... @/*
+Creating a new Next.js app in \next-blog.
+Using npm.
+Initializing project with template: app-tw
+Installing dependencies:
+- react
+- react-dom
+- next
+Installing devDependencies:
+- typescript
+- @types/node
+- @types/react
+- @types/react-dom
+- @tailwindcss/postcss
+- tailwindcss
+added 109 packages, and audited 110 packages in 24s
+39 packages are looking for funding
+  run `npm fund` for details
+found 0 vulnerabilities
+Initialized a git repository.
+Success! Created next-blog at \next-blog
+```
+</Terminal>
+
+# Step 2: Install MDX Support
+Next.js supports MDX via @next/mdx. Let's install it:
+<Terminal folder="terminal">
+npm install @next/mdx @mdx-js/loader
+</Terminal>
+
+Then, update your next.config.js like this:
+<Terminal folder="next.config.js">
+```
+import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
+
+const nextConfig: NextConfig = {
+  pageExtensions: ["mdx", "ts", "tsx"],
+  experimental: {
+    mdxRs: true,
+  },
+};
+
+const withMDX = createMDX({});
+
+export default withMDX(nextConfig);
+```
+</Terminal>
+
+# Step 3: Create mdx Components
+Now create mdx components in your `src/app/components` directory (Refer to [github repo](https://github.com/anktw/blog-starter) for mdx components like heading, paragraph, etc.), and create `mdx-components` file in root folder and import your components there:
+<Terminal folder="/mdx-components.tsx">
+```
+import { A as a } from "@/components/a"
+import { P as p } from "@/components/p"
+import { H1 as h1 } from "@/components/h1"
+import { H2 as h2 } from "@/components/h2"
+
+export function useMDXComponents(components: {
+  [component: string]: React.ComponentType;
+}) {
+  return {
+    ...components,
+    a,
+    h1, 
+    h2,
+    p,
+  };
+}
+```
+</Terminal>
+
+So, creating a markdown in Next.js is this easy. You can now create `.mdx` files in your `src/app` directory.
+But first, We need to fix the layout for our blog posts.
+
+Go to `src/app/layout.tsx` and add the following code after `body` tag:
+<Terminal folder="src/app/layout.tsx">
+```
+<div className="min-h-screen flex flex-col justify-between pt-0 md:pt-8 p-8 dark:bg-zinc-950 bg-white text-gray-900 dark:text-zinc-200">
+    <main className="max-w-[60ch] mx-auto w-full space-y-6">
+        {children}
+    </main>
+</div>
+```
+</Terminal>
+
+# Step 3: Create a Markdown File
+Create a new file in `src/app/blogs/first-blog/page.mdx`:
+<Terminal folder="src/app/blogs/first-blog">
+```
+export const metadata = {
+  title: "My First Blog Post",
+  date: "2025-06-05",
+};
+
+# My First Blog Post
+
+Welcome to my first post!
+```
+</Terminal>
+
+<Callout emoji="😎" text="Congratulations! You have created your first blog using Next.js + mdx" />
+
+<Image link="/images/writings/3/1.png" alt="First Blog Page" height="800" width="1600" />
+
+# Further Features
+You can add more features like:
+
+1. **Open Graph Tags**: Add Open Graph tags for better SEO.
+1. **Render Layout Dynamically**: Use a dynamic layout pattern for all blogs.
+1. **Pagination**: Implement pagination for your blog posts.
+1. **Search**: Add a search feature to find blog posts.
+1. **Comments**: Integrate a commenting system like Disqus or a custom solution.

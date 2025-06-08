@@ -3,3 +3,205 @@ export const metadata = {
     description: "This guide will walk you through the steps to containerize a FastAPI app with PostgreSQL using Docker, including setting up the Dockerfile, docker-compose.yml, and necessary configurations  .",
 }
 
+If you're building a FastAPI backend with a PostgreSQL, Redis then your welcome.
+
+You can access all the code in this repository, which is a starter template for FastAPI with PostgreSQL and Redis integration.
+Repository: [fastapi-postgres-starter](https://github.com/anktw/fastapi-postgres-starter)
+
+## Project Structure
+Let's say your folder structure looks like this:
+```
+fastapi-postgres-app/
+│
+├── app/
+│   ├── api/
+│   │   ├── v1/
+│   │   │   ├── api.py
+│   ├── core/
+│   │   ├── config.py
+│   ├── crud/
+│   │   └── user.py
+│   ├── db/
+│   │   ├── base.py
+│   │   ├── session.py
+│   │   └── models/
+│   │       └── user.py
+│   ├── schemas/
+│   │   └── user.py
+│   ├── services/
+│   ├── utils/                      
+│   ├── main.py                       
+│   └── __init__.py
+│
+├── alembic/  (for migrations)
+├── .env
+└── requirements.txt
+```
+
+# Step 1: Setting Up Environment
+
+Make sure requirements.txt includes the packages. You can create a `requirements.txt` file by running:
+<Terminal folder="/">
+pip freeze > requirements.txt
+</Terminal>
+
+Edit the `.env` file to include your database connection details:
+<Terminal folder="/.env">
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=secret
+POSTGRES_DB=userdb
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_PASSWORD=changethis
+</Terminal>
+
+> **Common Error**: Pydantic have strict validation, so make sure your `.env` file has no extra spaces or invalid characters.
+> Make sure the config.py file in your FastAPI app is set up to read from the `.env` file correctly. You can write extra="allow" in your Pydantic model to allow extra fields in the `.env` file.
+
+# Step 2: Create Docker files
+
+### Dockerfile
+Create a `Dockerfile` in the root of your project:
+
+<Terminal folder="/dockerfile">
+{`FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]`}
+</Terminal>
+
+### docker-compose.yml file
+Create a `docker-compose.yml` file in the root of your project:
+<Terminal folder="/docker-compose.yml">
+```
+version: '3.8'
+
+services:
+  fastapi:
+    build:
+      context: .
+    container_name: fastapi_postgres_starter # Main application container
+    working_dir: /app
+    ports:
+      - "8000:8000" # Expose FastAPI on port 8000
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    depends_on:
+      - postgres
+      - redis
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    command: >
+      bash -c "alembic upgrade head &&
+               uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+  postgres:
+    image: postgres:14
+    container_name: fastapi_postgres_starter_db
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: fastapi_postgres_starter_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis_insight:
+    image: redislabs/redisinsight:1.14.0
+    container_name: fastapi_postgres_starter_redis_insight
+    restart: always
+    ports:
+      - "8001:8001"
+    environment:
+      - RICONNECT_URI=redis://:${REDIS_PASSWORD}@redis:6379
+    volumes:
+      - redis_insight_data:/db
+    depends_on:
+      - redis
+
+volumes:
+  postgres_data:
+  redis_data:
+  redis_insight_data:
+
+```
+</Terminal>
+
+### (Optional)  Test Redis Connection
+
+Add a test script to confirm Redis connection inside Docker.
+create file named `test-redis-auth.sh` in the root of your project:
+<Terminal folder="/test-redis-auth.sh">
+```
+echo "Testing Redis..."
+REDIS_PASSWORD=${REDIS_PASSWORD:-"StrongRedisPassword123!"}
+
+if redis-cli -h redis -p 6379 -a "$REDIS_PASSWORD" ping; then
+    echo "Connected to Redis!"
+    redis-cli -h redis -p 6379 -a "$REDIS_PASSWORD" set test_key "Hello from Docker!"
+    redis-cli -h redis -p 6379 -a "$REDIS_PASSWORD" get test_key
+else
+    echo "Redis connection failed."
+    exit 1
+fi
+```
+</Terminal>
+
+# Step 3: Build and Run the Docker Containers
+To build and run the Docker containers, navigate to your project directory and run:
+<Terminal folder="/">
+docker-compose up --build
+</Terminal>
+Now your FastAPI app should be running on `http://localhost:8000`
+
+You can access other ports as well:
+PostgreSQL on `localhost:5433`, and Redis on `localhost:6379`. -> Add in your pgadmin4
+You can access the Redis Insight UI at `http://localhost:8001`. -> Access Redis Insight UI
+
+# Step 4: Cleanup
+To stop and remove the Docker containers, run:
+<Terminal folder="/">
+docker-compose down -v
+</Terminal>
+
+`-v` flag will remove the volumes too.
+
+<Callout emoji="😎" text="Congratulations! You have dockerized your FastAPI and PostgreSQL/REDIS app!" />
