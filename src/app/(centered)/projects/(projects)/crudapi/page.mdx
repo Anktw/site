@@ -1,0 +1,43 @@
+export const metadata = {
+    title: "CrudAPI | Projects | Ankit Tiwari",
+    description: "A complex collaborative CRUD APIs built with Java Spring Boot and MongoDB.",
+}
+
+This is a collaborative CRUD API project that I built with my friends in college. The project is built with Java Spring Boot and MongoDB. It is a complex project that involves multiple APIs for different functionalities.
+
+## User authentication
+Fully supported user authentication features including registration, login, and token validation.
+
+## Endpoints
+
+**`POST`**    `auth/sign-up`	Create a new user and send confirmation code.
+
+**`POST`**    `auth/log-in`	Log in via JWT.
+
+**`POST`**    `auth/verify-confirmation`	Verify user confirmation.
+
+**`GET`**    `health-check`	Check if the app is working.
+
+**`PUT`**    `user/update-username`	Update the user's username.
+
+**`GET`**    `admin/all-users`	Retrieve all users (admin only).
+
+**`POST`**    `group/create`	Create a new group.
+
+**`DELETE`**    `group/{groupId}/delete`	Deletes an existing group.(group admin only)
+
+**`POST`**    `invitation/send`	Send an invitation to join the group (group admin only).
+
+**`PUT`**    `invitation/{invitationId}/accept`	Accept an invitation to join the group.
+
+**`PUT`**    `invitation/{invitationId}/reject`	Reject an invitation to join the group.
+
+**`POST`**    `task/assign`	Assign a task to a specific user (group admin only).
+
+**`PUT`**    `task/{taskId}/accept`	Accept an assigned task.
+
+**`PUT`**    `task/{taskId}/reject`	Reject an assigned task.
+
+**`PUT`**    `task/{taskId}/start`	Start working on an assigned task.
+
+**`PUT`**    `task/{taskId}/complete`	Mark a task as completed.
