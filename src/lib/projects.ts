@@ -12,7 +12,7 @@ export async function getProjects(): Promise<Project[]> {
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/projects`,
       {
         next: {
-          revalidate: 3600 
+          revalidate: 300 // Revalidate every 5 minutes
         }
       }
     );
