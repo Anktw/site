@@ -11,7 +11,7 @@ export async function getWritings(): Promise<Writings[]> {
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/writings`,
       {
         next: {
-          revalidate: 3600 
+          revalidate: 5
         }
       }
     );
