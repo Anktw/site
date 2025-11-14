@@ -1,0 +1,21 @@
+export const metadata = {
+    title: "Backend-Docker | Projects | Ankit Tiwari",
+    description: "Backend-Docker is containerized version of Backend project which is made using FastAPI, PostgreSQL, and Docker. It is a RESTful API that provides endpoints for managing user accounts, projects, and tasks.",
+}
+
+This is a dockerized version of my [backend](./backend) project. The original backend isn't dockerized due to deployment constraints (I use it for most of my projects and don't want to disrupt existing deployments). As I was learning Docker in depth, I decided to create a fully dockerized version of it.
+
+---
+
+# 🧑‍💻 Technical Details
+- Full Docker-based orchestration and infrastructure-as-code setup using Docker Compose.
+
+- Services such as PostgreSQL, Redis, and RedisInsight.
+
+- Configured with custom health checks and persistent volumes.
+
+- The FastAPI container automatically runs database migrations using Alembic before starting the Uvicorn ASGI server, ensuring schema consistency at launch.
+
+- Custom scripts to verify Redis, PostgreSQL password-protected connectivity.
+
+- PowerShell and Bash scripts for deployment, environment generation, and Docker health management, alongside a Makefile for automation.

@@ -37,18 +37,6 @@
         "github": "https://github.com/anktw/site_archived"
     },
     {
-        "id": 9,
-        "title": "CrudAPI",
-        "desc": "A complex collaborative CRUD APIs built with Java Spring Boot and MongoDB",
-        "github": "https://github.com/anktw/crudapi"
-    },
-    {
-        "id": 11,
-        "title": "GoJWT",
-        "desc": "A Lite JWT-based authentication service in Go, implementing user registration, login, and token validation",
-        "github": "https://github.com/anktw/gojwt"
-    },
-    {
         "id": 12,
         "title": "LockedIn",
         "desc": "A productivity app that helps you manage tasks efficiently with time tracking, prioritization with daily motivational quotes and background syncing to cloud.",
@@ -63,16 +51,34 @@
         "github": "https://github.com/anktw/accounts"
     },
     {
-        "id": 18,
-        "title": "Django-Unchained",
-        "desc": "A Django-based multi-tenant backend with isolated JWT auth per tenant, production setup via Docker + Gunicorn.",
-        "github": "https://github.com/anktw/django-unchained"
-    },
-    {
         "id": 19,
         "title": "Backend",
         "desc": "Backend API most of my projects use, built with FastAPI and PostgreSQL.",
         "livelink": "https://accounts.unkit.site",
         "github": "https://github.com/anktw/backend"
+    },
+    {
+        "id": 21,
+        "title": "House Price Prediction",
+        "desc": "A machine learning project that predicts house prices based on various features using regression algorithms.",
+        "github": "https://github.com/anktw/House-Price-Prediction"
+    },
+    {
+        "id": 23,
+        "title": "Handwritten Digit Classification Using CNN",
+        "desc": "Trained a CNN model on MNIST by applying image preprocessing, convolution-pooling feature extraction, dense classification layers, and deployed a custom prediction function for classifying new handwritten digit images.",
+        "github": "https://github.com/Anktw/Handwritten-Digit-Classification-using-CNN"
+    },
+    {
+        "id": 25,
+        "title": "RAG-Based Patient Review Question-Answering Chatbot",
+        "desc": "An AI system that helps hospitals instantly analyze patient reviews and answer operational queries using retrieved real-world feedback.",
+        "github": "https://github.com/anktw/Iris-Flower-Classification"
+    },
+    {
+        "id": 27,
+        "title": "AutoEDA",
+        "desc": "A tool for Automated Exploratory Data Analysis for quickly understanding datasets and reduce time spent EDA tasks.",
+        "github": "https://github.com/anktw/autoeda"
     }
 ]

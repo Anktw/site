@@ -13,7 +13,7 @@ export default async function RecentProjects() {
     <section className="mb-16">
       {projects.map((project) => (
         <div key={project.id} className="group">
-          <Link href={`/projects/${project.title.toLowerCase()}`}>
+          <Link href={`/projects/${project.title.replace(/\s+/g, '-').toLowerCase()}`}>
             <div className="flex items-center justify-between py-3 px-4 -mx-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
               <div className="flex-1">
                 <h3 className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
