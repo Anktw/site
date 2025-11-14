@@ -1,5 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { A } from "@/components/mdx/a";
 import { Projects } from "@/lib/AllProjects";
+
+// simple slugify helper
+function slugify(text: string) {
+    return text
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '-')        // spaces -> -
+        .replace(/[^a-z0-9-]/g, ''); // remove invalid chars
+}
 
 export default function ProjectHeader({
     projects,
@@ -8,9 +18,12 @@ export default function ProjectHeader({
     projects: Projects[];
     slug: string;
 }) {
-    const project = projects.find(
-        (p: Projects) => p.title.toLowerCase() === slug.toLowerCase()
-    );
+    const project = projects.find((p: Projects) => {
+        // prefer an explicit slug if present, otherwise compute from title
+        const pSlug = (p as any).slug ? (p as any).slug : slugify((p as any).title);
+        return pSlug.toLowerCase() === slug.toLowerCase();
+    });
+
     if (!project) {
         return null;
     }
