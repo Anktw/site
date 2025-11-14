@@ -3,4 +3,32 @@ export const metadata = {
     description: "An AI system that helps hospitals instantly analyze patient reviews and answer operational queries using retrieved real-world feedback.",
 }
 
-<Callout emoji="🙃" text="I am still working on this project please visit later" />
+<Callout emoji="🙃" text="I am still working on this project please visit later for detailed view" />
+
+**LLM & Generative AI**
+- Google Gemini 2.5 Flash (Chat Model)
+- LangChain (Prompt templates, Runnables, Chains)
+- Google Generative AI Embeddings (`gemini-embedding-001`)
+
+**Vector Database**
+- ChromaDB (persistent vector store)
+- Similarity search retriever (k=10)
+
+**Data Handling & Preprocessing**
+- CSVLoader (for ingesting reviews.csv)
+- Batched embedding generation with rate-limit safety
+- Document structuring for retrieval modules
+
+**Prompting & RAG Pipeline**
+- ChatPromptTemplate  
+- System + Human message templates  
+- Context injection for hallucination-safe answers  
+- StrOutputParser for clean output formatting
+
+**Frontend / UI**
+- Gradio ChatInterface  
+- Real-time question answering  
+- Chat history & session-based interaction
+
+**Others**
+- Python, Colab, time-based batching, reproducible pipelines
