@@ -1,12 +1,5 @@
 [
     {
-        "id": 1,
-        "title": "Nextjs_Dashboard",
-        "desc": "I was learning Next.js and it was provided by Next.js documentation",
-        "livelink": "https://dashboard.unkit.site",
-        "github": "https://github.com/Anktw/nextjs-dashboard"
-    },
-    {
         "id": 2,
         "title": "CarpeDiem",
         "desc": "Visualize your life in weeks and make every moment count!",
@@ -28,13 +21,6 @@
         "github": "https://github.com/anktw/auto-next",
         "filetype": "Extension",
         "download": "https://marketplace.visualstudio.com/items?itemName=unkit.auto-next"
-    },
-    {
-        "id": 8,
-        "title": "Site_archived",
-        "desc": "My old personal website, now archived. It was built with Next.js and hosted on Vercel.",
-        "livelink": "https://archived.unkit.site",
-        "github": "https://github.com/anktw/site_archived"
     },
     {
         "id": 12,
