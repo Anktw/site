@@ -402,8 +402,8 @@ export default function NeuralNetworkBackground() {
 
       forwardPass(network, input, prefersReducedMotion ? 0.38 : 0.16);
 
-      const edgeBaseAlpha = 0.16;
-      const edgePulseScale = prefersReducedMotion ? 0.13 : 0.25;
+      const edgeBaseAlpha = 0.08;
+      const edgePulseScale = prefersReducedMotion ? 0.08 : 0.16;
 
       for (let layer = 0; layer < network.layerSizes.length - 1; layer += 1) {
         const sourceNodes = network.nodePositions[layer];
@@ -417,10 +417,10 @@ export default function NeuralNetworkBackground() {
             const weight = weightMatrix[target][source];
             const flowSignal = Math.abs(sourceActivations[source] * weight * targetActivations[target]);
             const weightStrength = Math.min(1, Math.abs(weight) / 1.8);
-            const alpha = Math.min(0.62, edgeBaseAlpha + (flowSignal * 0.7 + weightStrength * 0.3) * edgePulseScale);
+            const alpha = Math.min(0.34, edgeBaseAlpha + (flowSignal * 0.7 + weightStrength * 0.3) * edgePulseScale);
 
             context.strokeStyle = `rgba(186, 210, 232, ${alpha})`;
-            context.lineWidth = 1 + flowSignal * 1 + weightStrength * 0.8;
+            context.lineWidth = 0.75 + flowSignal * 0.7 + weightStrength * 0.5;
             context.beginPath();
             context.moveTo(sourceNodes[source].x, sourceNodes[source].y);
             context.lineTo(targetNodes[target].x, targetNodes[target].y);
@@ -436,9 +436,9 @@ export default function NeuralNetworkBackground() {
           const intensity = Math.min(1, Math.abs(activation));
           const radius = 2.4 + intensity * 2.1;
 
-          context.shadowBlur = 5 + intensity * 8;
-          context.shadowColor = "rgba(148, 163, 184, 0.3)";
-          context.fillStyle = `rgba(226, 232, 240, ${0.32 + intensity * 0.42})`;
+          context.shadowBlur = 2 + intensity * 4;
+          context.shadowColor = "rgba(148, 163, 184, 0.16)";
+          context.fillStyle = `rgba(226, 232, 240, ${0.15 + intensity * 0.22})`;
           context.beginPath();
           context.arc(x, y, radius, 0, Math.PI * 2);
           context.fill();
@@ -448,11 +448,11 @@ export default function NeuralNetworkBackground() {
       context.shadowBlur = 0;
       context.textAlign = "left";
       context.font = "500 11px Inter, system-ui, sans-serif";
-      context.fillStyle = "rgba(186, 199, 214, 0.56)";
+      context.fillStyle = "rgba(186, 199, 214, 0.3)";
       context.fillText("y = σ(Wx + b)", isSmallDevice ? 16 : 24, isSmallDevice ? 26 : 36);
 
       context.textAlign = "right";
-      context.fillStyle = "rgba(186, 199, 214, 0.52)";
+      context.fillStyle = "rgba(186, 199, 214, 0.26)";
       context.fillText("h = ReLU(Wx + b)", width - (isSmallDevice ? 16 : 24), height - (isSmallDevice ? 16 : 24));
     };
 
