@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import {unstable_ViewTransition as ViewTransition } from "react";
+import NeuralNetworkBackground from "@/components/neural-network-background";
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -25,8 +26,9 @@ export default function RootLayout({
         enableSystem
         disableTransitionOnChange
       >
+        <NeuralNetworkBackground />
           <Header />
-          <div className="min-h-screen mt-6 md:mt-16">
+          <div className="min-h-screen mt-2 md:mt-8">
             <ViewTransition>
               {children}
             </ViewTransition>
