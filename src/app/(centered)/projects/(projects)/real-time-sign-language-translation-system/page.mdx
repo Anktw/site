@@ -1,0 +1,111 @@
+---
+title: "Real-Time Sign Language Translation System"
+description: "An edge AI system that translates sign language gestures captured via flex sensors into speech in real time — achieving 25ms inference latency and 120ms end-to-end response."
+date: "2026-03"
+endDate: "2026-04"
+status: "completed"
+tags: ["TensorFlow", "LSTM", "FastAPI", "Streamlit", "Arduino", "Edge AI", "TTS", "Signal Processing"]
+stack:
+  - label: "Hardware"
+    value: "Arduino + Flex Sensors"
+  - label: "Model"
+    value: "LSTM (TensorFlow)"
+  - label: "Classification"
+    value: "Scikit-learn"
+  - label: "API"
+    value: "FastAPI"
+  - label: "Interface"
+    value: "Streamlit"
+  - label: "Output"
+    value: "Text-to-Speech (TTS)"
+metrics:
+  - label: "Inference Latency"
+    value: "25ms"
+  - label: "End-to-End Response"
+    value: "120ms"
+  - label: "Pipeline"
+    value: "Arduino → LSTM → TTS"
+---
+
+# Real-Time Sign Language Translation System
+
+## Motivation
+
+Over 70 million people worldwide use sign language as their primary means of communication. Yet the gap between sign language users and those who don't understand it remains wide — most real-time translation systems are either too slow, too expensive, or too dependent on cameras and controlled lighting.
+
+This project explores a different approach: **flex sensors on a glove**, capturing finger bend angles directly, combined with an on-device LSTM model and a streaming inference pipeline that translates gestures into speech in real time.
+
+## System Architecture
+
+The pipeline flows in one direction with minimal latency at each stage:
+
+```
+Flex Sensors (Arduino)
+       ↓
+  Serial Stream
+       ↓
+ Sliding Window Buffer
+       ↓
+  LSTM Inference
+       ↓
+ Smoothing + Confidence Filter
+       ↓
+ Gesture → Sentence Mapping
+       ↓
+   TTS Output + Streamlit UI
+```
+
+### Hardware Layer — Arduino + Flex Sensors
+
+Five flex sensors are mounted on a glove — one per finger. As the hand forms a gesture, each sensor changes resistance proportionally to bend angle. The Arduino reads these analog values at high frequency and streams them over serial to the host machine.
+
+**Key challenge:** Raw sensor data is noisy. Small vibrations, finger tremors, and cable flex introduce jitter that — left unfiltered — causes spurious predictions.
+
+### Signal Processing — Sliding Window
+
+Instead of classifying individual sensor readings, the system buffers the last *N* timesteps into a sliding window. This captures the **temporal shape** of a gesture — the motion arc matters as much as the final position.
+
+Window parameters were tuned empirically to balance responsiveness and noise rejection.
+
+### Model — LSTM Classifier
+
+A multi-layer LSTM is trained on windowed sensor sequences for each gesture class. LSTMs are well-suited here because:
+- They model temporal dependencies across the gesture arc
+- They handle variable-speed executions of the same gesture
+- They generalize across slight sensor drift
+
+Training data was collected across multiple sessions to capture natural variation in gesture speed and hand size.
+
+### Post-Processing — Smoothing & Confidence Thresholds
+
+Raw LSTM outputs are passed through a smoothing layer (running average over recent predictions) and a confidence threshold filter. Only predictions above a set confidence score trigger output — this eliminates low-confidence flickering between gesture classes.
+
+### Output — TTS + Streamlit UI
+
+Confirmed gesture predictions are mapped to words or phrases and passed to a text-to-speech engine. A Streamlit dashboard displays the live prediction stream, confidence scores, and assembled sentences.
+
+A **FastAPI** backend exposes real-time prediction endpoints — making the system extensible to mobile clients or web interfaces.
+
+## Performance
+
+| Metric | Value |
+|--------|-------|
+| LSTM inference latency | **25ms** |
+| End-to-end response time | **120ms** |
+| Prediction stability | Stable under smoothing + confidence filtering |
+| Gesture-to-sentence mapping | Custom vocabulary, extensible |
+
+## Challenges & Solutions
+
+**Sensor drift over time:** Flex sensors change resistance slightly as they warm up. Solved with a per-session calibration step that normalizes raw readings to a baseline.
+
+**Gesture boundary detection:** Knowing when one gesture ends and another begins is non-trivial. Implemented a silence detection threshold — when all sensor readings return to a neutral range, the current gesture is committed.
+
+**Latency budget:** Keeping end-to-end latency under 150ms required profiling every stage. The bottleneck was TTS synthesis — addressed by using a lightweight local TTS engine rather than a cloud API.
+
+## What's Next
+
+- Expanding the gesture vocabulary with more signs
+- Training a user-adaptive model that fine-tunes to individual hand geometry
+- Exploring camera-based keypoint detection (MediaPipe) as a sensor-free alternative
+- Packaging as a standalone Raspberry Pi edge device

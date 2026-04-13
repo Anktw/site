@@ -1,0 +1,128 @@
+export const metadata = {
+  title: "Customer Segmentation & Churn Prediction System",
+  description: "Predicts customer churn and segments customers based on various features."
+}
+
+## The Business Problem
+
+Customer acquisition costs significantly more than retention — yet most businesses only react to churn *after* it happens. A customer cancels their subscription, and the company sends a discount. Too late.
+
+The goal here is to **predict churn before it happens**, identify *which* customers are both high-value and at risk, and enable targeted retention campaigns that maximize ROI. This is a classic ML problem, but the real challenge is making it actionable: fast enough for real-time scoring, interpretable enough for business stakeholders to trust.
+
+## System Design
+
+The system has three interconnected components:
+
+```
+Raw Customer Data
+       ↓
+Feature Engineering Pipeline
+       ↓
+   ┌───────────────────────────┐
+   │   Customer Segmentation   │  ← Who are our customers?
+   │   (K-Means / RFM)         │
+   └─────────────┬─────────────┘
+                 ↓
+   ┌───────────────────────────┐
+   │   Churn Prediction Model  │  ← Who is about to leave?
+   │   (XGBoost Classifier)    │
+   └─────────────┬─────────────┘
+                 ↓
+   ┌───────────────────────────┐
+   │   SHAP Explainability     │  ← Why are they at risk?
+   └─────────────┬─────────────┘
+                 ↓
+   FastAPI Real-Time Scoring Endpoints
+```
+
+## Customer Segmentation
+
+Before predicting churn, the system segments customers using **RFM analysis** (Recency, Frequency, Monetary value) combined with clustering. This answers: which customers are actually worth retaining?
+
+Targeting a low-value customer with a retention campaign costs the same as targeting a high-value one — but the return is orders of magnitude lower. Segmentation ensures retention resources are allocated intelligently.
+
+Segments identified:
+- **Champions** — high frequency, high value, recent activity
+- **At-Risk High-Value** — previously champions, now declining
+- **Hibernating** — low recency, moderate historical value
+- **New Customers** — insufficient history to classify definitively
+
+The churn model is then applied specifically to the **At-Risk High-Value** segment — where intervention has the highest expected return.
+
+## Churn Prediction — XGBoost
+
+An XGBoost gradient boosting classifier is trained on engineered features:
+
+- Behavioral features: login frequency, feature usage patterns, support ticket history
+- Engagement trends: week-over-week and month-over-month activity changes
+- Account features: contract type, tenure, billing history
+- Support signals: number of complaints, unresolved tickets
+
+XGBoost was chosen for its:
+- Strong performance on tabular data with mixed feature types
+- Native handling of missing values
+- Fast inference — critical for the real-time API requirement
+
+## Explainability — SHAP
+
+A churn score alone isn't enough. A business stakeholder asking *"why is this customer at risk?"* needs a real answer — not just a number.
+
+SHAP (SHapley Additive exPlanations) provides per-prediction feature importance, answering exactly that question.
+
+For each at-risk customer, the system surfaces:
+- The top factors driving their churn risk (e.g., *"no logins in 14 days"*, *"3 unresolved support tickets"*)
+- The magnitude of each factor's contribution
+- Global feature importance across the full customer base
+
+This transforms the system from a black box into an **actionable diagnostic tool** — account managers know exactly what to address in a retention call.
+
+## Real-Time API — FastAPI
+
+The trained models are deployed as FastAPI endpoints:
+
+```
+POST /predict/churn
+{
+  "customer_id": "C_12345",
+  "features": { ... }
+}
+
+→ Response:
+{
+  "churn_probability": 0.74,
+  "segment": "at_risk_high_value",
+  "top_risk_factors": [
+    { "feature": "days_since_last_login", "impact": "+0.21" },
+    { "feature": "open_tickets", "impact": "+0.18" }
+  ]
+}
+```
+
+Latency is kept under 100ms end-to-end — fast enough for integration into CRM dashboards and customer-facing internal tools.
+
+## Experiment Tracking — MLflow
+
+All training runs are tracked in MLflow: hyperparameters, metrics, feature sets, and model artifacts. This enables reproducibility and makes it straightforward to compare model versions before promoting to production.
+
+## Simulated Retention Impact
+
+By targeting the **high-value at-risk segment** identified by the combined segmentation + churn model:
+- Simulated **18% improvement** in overall retention
+- Estimated **15–20% churn reduction** within the high-value segment through targeted campaigns (personalized offers, proactive support outreach, account manager check-ins)
+
+Simulation methodology: historical churn rates were used to model what retention would have looked like had interventions been applied to the predicted at-risk cohort.
+
+## Key Learnings
+
+**Segmentation before prediction matters.** A model trained on all customers learns a blurry signal. Restricting training and inference to relevant segments dramatically improves precision.
+
+**SHAP changes how stakeholders engage with ML.** Feature importance summaries moved conversations from *"should we trust this?"* to *"here's what we're going to do about customer X."*
+
+**Threshold tuning is underrated.** The default 0.5 threshold was wrong for this use case. A higher recall threshold (catching more churners, accepting some false positives) was optimal given the business cost asymmetry.
+
+## What's Next
+
+- Survival analysis (time-to-churn) for more nuanced risk scoring
+- Cohort-level trend monitoring with automated alerts
+- A/B testing framework to measure real retention lift from model-driven interventions
+- Integration with CRM (Salesforce/HubSpot) via webhook

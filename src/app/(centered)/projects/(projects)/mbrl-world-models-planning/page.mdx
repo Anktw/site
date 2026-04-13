@@ -1,0 +1,78 @@
+export const metadata = {
+  title: "MBRL World Models Planning",
+  description: "An end-to-end Model-Based Reinforcement Learning pipeline that learns environment dynamics and plans via imagined trajectories — achieving sample efficiency beyond model-free baselines."
+}
+
+# MBRL World Models Planning
+
+## The Problem
+
+Model-free reinforcement learning agents learn by interacting with an environment thousands — often millions — of times before converging on a useful policy. This sample inefficiency makes real-world deployment impractical: physical robots break, simulators are expensive, and data collection is slow.
+
+The core question this project answers: **can an agent learn a compressed mental model of its environment, and use that model to plan — without needing to live through every experience?**
+
+## Approach
+
+This project builds a full **Model-Based RL** pipeline from scratch, inspired by the Dreamer / PlaNet family of world models.
+
+### World Model Architecture
+
+The world model has three tightly coupled components:
+
+**1. VAE — Visual Encoder / Decoder**  
+Raw observations (image frames) are compressed into a low-dimensional latent space using a Variational Autoencoder. This gives the agent a compact, continuous representation of "what it sees."
+
+**2. RSSM — Recurrent State Space Model**  
+The Recurrent State Space Model maintains a joint latent state that combines:
+- A **deterministic** hidden state (GRU/LSTM) — carries temporal memory across steps
+- A **stochastic** component — captures environment uncertainty
+
+At each timestep, the RSSM predicts the next latent state given the current state and action. This is the agent's "imagination engine."
+
+**3. Reward Model**  
+A lightweight MLP trained to predict scalar rewards from latent states — enabling the agent to evaluate imagined trajectories without touching the real environment.
+
+### Planning in Latent Space
+
+Given a trained world model, the agent plans entirely inside the learned latent space:
+
+- **MCTS (Monte Carlo Tree Search):** Builds a search tree of imagined futures, selecting actions that maximize expected cumulative reward.
+- **CEM (Cross-Entropy Method):** Iteratively refines action sequences by sampling, evaluating in imagination, and fitting a new distribution to the best candidates.
+
+Both planners operate without any further interaction with the real environment during planning.
+
+## Training Pipeline
+
+```
+Real Env → Collect trajectories → Encode with VAE
+                                        ↓
+                              Train RSSM on sequences
+                                        ↓
+                              Train Reward Model
+                                        ↓
+                    Plan with MCTS / CEM in latent space
+                                        ↓
+                        Execute best action → Repeat
+```
+
+## Results
+
+| Metric | Model-Free (PPO/SAC) | MBRL (This Work) |
+|--------|----------------------|-------------------|
+| Sample efficiency | Baseline | **Significantly fewer interactions** |
+| Policy stability | Moderate variance | Stable convergence |
+| Planning horizon | N/A | Multi-step imagined rollouts |
+
+The pipeline demonstrates stable policy learning in continuous control tasks (locomotion, manipulation) with substantially fewer real-environment interactions than PPO and SAC baselines.
+
+## Key Learnings
+
+- **Latent dynamics are powerful but fragile.** The RSSM must be trained carefully — compounding prediction errors over long rollout horizons can destabilize planning.
+- **CEM is deceptively effective.** Despite its simplicity, the Cross-Entropy Method produces competitive plans when the world model is accurate.
+- **TensorBoard is essential.** Tracking latent reconstructions, KL divergence, and reward prediction loss separately was critical for diagnosing training issues.
+
+## What's Next
+
+- Integrating a learned value function (actor-critic) alongside the planner
+- Extending to pixel-based 3D environments (IsaacGym / Mujoco)
+- Experimenting with transformer-based world models (TWIRL / Genie-style)

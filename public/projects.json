@@ -45,15 +45,15 @@
     },
     {
         "id": 21,
-        "title": "House Price Prediction",
-        "desc": "A machine learning project that predicts house prices based on various features using regression algorithms.",
-        "github": "https://github.com/anktw/House-Price-Prediction"
+        "title": "Customer Segmentation & Churn Prediction System",
+        "desc": "Predicts customer churn and segments customers based on various features.",
+        "github": "https://github.com/anktw/Customer-Segmentation-and-Churn-Prediction"
     },
     {
         "id": 23,
-        "title": "Handwritten Digit Classification Using CNN",
-        "desc": "Trained a CNN model on MNIST by applying image preprocessing, convolution-pooling feature extraction, dense classification layers, and deployed a custom prediction function for classifying new handwritten digit images.",
-        "github": "https://github.com/Anktw/Handwritten-Digit-Classification-using-CNN"
+        "title": "Real-Time Sign Language Translation System",
+        "desc": "Translates sign language gestures captured via flex sensors into speech in real time — achieving 25ms inference latency and 120ms end-to-end response.",
+        "github": "https://github.com/Anktw/Akatsuki"
     },
     {
         "id": 25,
@@ -63,8 +63,8 @@
     },
     {
         "id": 27,
-        "title": "AutoEDA",
-        "desc": "A tool for Automated Exploratory Data Analysis for quickly understanding datasets and reduce time spent EDA tasks.",
-        "github": "https://github.com/anktw/autoeda"
+        "title": "MBRL World Models Planning",
+        "desc": "An end-to-end Model-Based Reinforcement Learning pipeline that learns environment dynamics and plans via imagined trajectories — achieving sample efficiency beyond model-free baselines.",
+        "github": "https://github.com/Anktw/mbrl-world-models-planning"
     }
 ]
