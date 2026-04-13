@@ -1,31 +1,8 @@
----
-title: "Real-Time Sign Language Translation System"
-description: "An edge AI system that translates sign language gestures captured via flex sensors into speech in real time — achieving 25ms inference latency and 120ms end-to-end response."
-date: "2026-03"
-endDate: "2026-04"
-status: "completed"
-tags: ["TensorFlow", "LSTM", "FastAPI", "Streamlit", "Arduino", "Edge AI", "TTS", "Signal Processing"]
-stack:
-  - label: "Hardware"
-    value: "Arduino + Flex Sensors"
-  - label: "Model"
-    value: "LSTM (TensorFlow)"
-  - label: "Classification"
-    value: "Scikit-learn"
-  - label: "API"
-    value: "FastAPI"
-  - label: "Interface"
-    value: "Streamlit"
-  - label: "Output"
-    value: "Text-to-Speech (TTS)"
-metrics:
-  - label: "Inference Latency"
-    value: "25ms"
-  - label: "End-to-End Response"
-    value: "120ms"
-  - label: "Pipeline"
-    value: "Arduino → LSTM → TTS"
----
+export const metadat = {
+  title: "Real-Time Sign Language Translation System",
+  description: "An edge AI system that translates sign language gestures captured via flex sensors into speech in real time — achieving 25ms inference latency and 120ms end-to-end response."
+  
+}
 
 # Real-Time Sign Language Translation System
 
@@ -86,14 +63,6 @@ Confirmed gesture predictions are mapped to words or phrases and passed to a tex
 
 A **FastAPI** backend exposes real-time prediction endpoints — making the system extensible to mobile clients or web interfaces.
 
-## Performance
-
-| Metric | Value |
-|--------|-------|
-| LSTM inference latency | **25ms** |
-| End-to-end response time | **120ms** |
-| Prediction stability | Stable under smoothing + confidence filtering |
-| Gesture-to-sentence mapping | Custom vocabulary, extensible |
 
 ## Challenges & Solutions
 
