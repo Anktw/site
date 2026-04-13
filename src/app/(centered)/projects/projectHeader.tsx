@@ -7,8 +7,10 @@ function slugify(text: string) {
     return text
         .trim()
         .toLowerCase()
-        .replace(/\s+/g, '-')        // spaces -> -
-        .replace(/[^a-z0-9-]/g, ''); // remove invalid chars
+    .replace(/\s+/g, '-')         // spaces -> -
+    .replace(/[^a-z0-9-]/g, '')   // remove invalid chars
+    .replace(/-+/g, '-')          // collapse duplicate dashes
+    .replace(/^-+|-+$/g, '');     // trim edge dashes
 }
 
 export default function ProjectHeader({
@@ -18,10 +20,12 @@ export default function ProjectHeader({
     projects: Projects[];
     slug: string;
 }) {
+    const normalizedSlug = slugify(slug);
+
     const project = projects.find((p: Projects) => {
         // prefer an explicit slug if present, otherwise compute from title
         const pSlug = (p as any).slug ? (p as any).slug : slugify((p as any).title);
-        return pSlug.toLowerCase() === slug.toLowerCase();
+        return slugify(pSlug) === normalizedSlug;
     });
 
     if (!project) {
