@@ -5,12 +5,14 @@ export const metadat = {
 }
 
 # Real-Time Sign Language Translation System
+This project, named "Akatsuki," is a vihaan9.0 By IEEEDTU Hackathon project.
+<Image link="/images/projects/akatsuki/ieeedtu.jpg" alt="Akatsuki Logo" height="500" width="900" />
 
 ## Motivation
 
 Over 70 million people worldwide use sign language as their primary means of communication. Yet the gap between sign language users and those who don't understand it remains wide — most real-time translation systems are either too slow, too expensive, or too dependent on cameras and controlled lighting.
 
-This project explores a different approach: **flex sensors on a glove**, capturing finger bend angles directly, combined with an on-device LSTM model and a streaming inference pipeline that translates gestures into speech in real time.
+This project explores a different approach: **flex sensors on a glove**, capturing finger bend angles directly, combined with an on-device randomForestclassifier model and a streaming inference pipeline that translates gestures into speech in real time.
 
 ## System Architecture
 
@@ -23,7 +25,7 @@ Flex Sensors (Arduino)
        ↓
  Sliding Window Buffer
        ↓
-  LSTM Inference
+randomForestclassifier Model
        ↓
  Smoothing + Confidence Filter
        ↓
@@ -44,9 +46,9 @@ Instead of classifying individual sensor readings, the system buffers the last *
 
 Window parameters were tuned empirically to balance responsiveness and noise rejection.
 
-### Model — LSTM Classifier
+### Model — randomForestclassifier
 
-A multi-layer LSTM is trained on windowed sensor sequences for each gesture class. LSTMs are well-suited here because:
+A multi-layer randomForestclassifier is trained on windowed sensor sequences for each gesture class. randomForestclassifiers are well-suited here because:
 - They model temporal dependencies across the gesture arc
 - They handle variable-speed executions of the same gesture
 - They generalize across slight sensor drift
@@ -55,7 +57,7 @@ Training data was collected across multiple sessions to capture natural variatio
 
 ### Post-Processing — Smoothing & Confidence Thresholds
 
-Raw LSTM outputs are passed through a smoothing layer (running average over recent predictions) and a confidence threshold filter. Only predictions above a set confidence score trigger output — this eliminates low-confidence flickering between gesture classes.
+Raw randomForestclassifier outputs are passed through a smoothing layer (running average over recent predictions) and a confidence threshold filter. Only predictions above a set confidence score trigger output — this eliminates low-confidence flickering between gesture classes.
 
 ### Output — TTS + Streamlit UI
 
@@ -63,18 +65,4 @@ Confirmed gesture predictions are mapped to words or phrases and passed to a tex
 
 A **FastAPI** backend exposes real-time prediction endpoints — making the system extensible to mobile clients or web interfaces.
 
-
-## Challenges & Solutions
-
-**Sensor drift over time:** Flex sensors change resistance slightly as they warm up. Solved with a per-session calibration step that normalizes raw readings to a baseline.
-
-**Gesture boundary detection:** Knowing when one gesture ends and another begins is non-trivial. Implemented a silence detection threshold — when all sensor readings return to a neutral range, the current gesture is committed.
-
-**Latency budget:** Keeping end-to-end latency under 150ms required profiling every stage. The bottleneck was TTS synthesis — addressed by using a lightweight local TTS engine rather than a cloud API.
-
-## What's Next
-
-- Expanding the gesture vocabulary with more signs
-- Training a user-adaptive model that fine-tunes to individual hand geometry
-- Exploring camera-based keypoint detection (MediaPipe) as a sensor-free alternative
-- Packaging as a standalone Raspberry Pi edge device
+<Image link="/images/projects/akatsuki/output.jpg" alt="Real-Time Translation Display" height="400" width="600" />

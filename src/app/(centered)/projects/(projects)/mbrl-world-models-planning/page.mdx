@@ -1,37 +1,71 @@
 export const metadata = {
   title: "MBRL World Models Planning",
-  description: "An end-to-end Model-Based Reinforcement Learning pipeline that learns environment dynamics and plans via imagined trajectories — achieving sample efficiency beyond model-free baselines."
+  description: "Production-grade Model-Based Reinforcement Learning system with learned world models (VAE + RSSM) and planning (MCTS, CEM) for sample-efficient decision making in continuous control environments."
 }
 
 # MBRL World Models Planning
 
-## The Problem
+<Callout emoji="🏗️" text="I am still working on this project!" />
 
-Model-free reinforcement learning agents learn by interacting with an environment thousands — often millions — of times before converging on a useful policy. This sample inefficiency makes real-world deployment impractical: physical robots break, simulators are expensive, and data collection is slow.
+## The Idea:
+- Imagine a robot watching 100 videos of a pendulum swinging
+- Instead of trying the pendulum 1 million times, it learns a "mental model"
+- Then it uses this mental model to plan what to do (like humans thinking ahead)
 
-The core question this project answers: **can an agent learn a compressed mental model of its environment, and use that model to plan — without needing to live through every experience?**
-
-## Approach
-
-This project builds a full **Model-Based RL** pipeline from scratch, inspired by the Dreamer / PlaNet family of world models.
+## What It Does?
+- Takes **pixel images** from a camera
+- Learns a **compressed world model** (learns how the world works)
+- **Plans ahead** without real interactions (imagines future in its head)
+- **Executes** the best action in the real world
 
 ### World Model Architecture
 
-The world model has three tightly coupled components:
+```
+INPUT: Camera image (64×64 pixels)
+  ↓
+[1] VAE: Image Compressor 
+  → Compress 12,288 pixels → 32 numbers (like JPEG, but smarter)
+  ↓
+[2] RSSM: Physics Learner
+  → Learns "if you move left, what happens next?"
+  → Predicts future 20 steps ahead
+  ↓
+[3] Reward Predictor: Value Estimator
+  → Predicts "how good is this state?"
+  ↓
+[4] Planners: Decision Makers (CEM + MCTS)
+  → Imagine 1000 action sequences
+  → Pick the best one
+  ↓
+OUTPUT: Best action to take in real world
+```
+## How It Works
+**Cycle 1:**
+```
+1. Collect 64 real interactions (random exploration)
+2. Train VAE on images → learn 32D representation
+3. Train RSSM on sequences → learn dynamics
+4. Train Reward predictor
+5. Plan 1000 imagined rollouts using trained models
+6. Execute best-planned action in real world
+```
 
-**1. VAE — Visual Encoder / Decoder**  
-Raw observations (image frames) are compressed into a low-dimensional latent space using a Variational Autoencoder. This gives the agent a compact, continuous representation of "what it sees."
+**Cycle 2, 3, 4...:**
+```
+Same process, but:
+- More data collected (256 steps total)
+- Better world model (more accurate)
+- Better planning (less uncertain)
+- Better reward (converges)
+```
 
-**2. RSSM — Recurrent State Space Model**  
-The Recurrent State Space Model maintains a joint latent state that combines:
-- A **deterministic** hidden state (GRU/LSTM) — carries temporal memory across steps
-- A **stochastic** component — captures environment uncertainty
+**Result After 3 Cycles:**
+- ✓ Pendulum agent learns to balance
+- ✓ Used only 256 real steps
+- ✓ Imagined 6400+ steps (free)
+- ✓ Competitive with PPO (uses 5000 steps)
 
-At each timestep, the RSSM predicts the next latent state given the current state and action. This is the agent's "imagination engine."
-
-**3. Reward Model**  
-A lightweight MLP trained to predict scalar rewards from latent states — enabling the agent to evaluate imagined trajectories without touching the real environment.
-
+---
 ### Planning in Latent Space
 
 Given a trained world model, the agent plans entirely inside the learned latent space:
@@ -55,24 +89,10 @@ Real Env → Collect trajectories → Encode with VAE
                         Execute best action → Repeat
 ```
 
-## Results
+# Output Images
 
-| Metric | Model-Free (PPO/SAC) | MBRL (This Work) |
-|--------|----------------------|-------------------|
-| Sample efficiency | Baseline | **Significantly fewer interactions** |
-| Policy stability | Moderate variance | Stable convergence |
-| Planning horizon | N/A | Multi-step imagined rollouts |
+<Image link="/images/projects/mbrl/vae_reconstructions.png" alt="VAE Reconstruction" height="400" width="600" />
 
-The pipeline demonstrates stable policy learning in continuous control tasks (locomotion, manipulation) with substantially fewer real-environment interactions than PPO and SAC baselines.
+<Image link="/images/projects/mbrl/rssm_latent_comparison.png" alt="RSSM Latent Comparison" height="400" width="600" />
 
-## Key Learnings
-
-- **Latent dynamics are powerful but fragile.** The RSSM must be trained carefully — compounding prediction errors over long rollout horizons can destabilize planning.
-- **CEM is deceptively effective.** Despite its simplicity, the Cross-Entropy Method produces competitive plans when the world model is accurate.
-- **TensorBoard is essential.** Tracking latent reconstructions, KL divergence, and reward prediction loss separately was critical for diagnosing training issues.
-
-## What's Next
-
-- Integrating a learned value function (actor-critic) alongside the planner
-- Extending to pixel-based 3D environments (IsaacGym / Mujoco)
-- Experimenting with transformer-based world models (TWIRL / Genie-style)
+<Image link="/images/projects/mbrl/reward_comparison.png" alt="Reward Comparison" height="400" width="600" />
