@@ -3,65 +3,163 @@ export const metadata = {
   description: "Predicts customer churn and segments customers based on various features."
 }
 
-## The Business Problem
+This project is a production-grade customer churn prediction and segmentation platform built with XGBoost, SHAP, MLflow, FastAPI, and Docker.
+The project is designed to support reproducible training, explainable predictions, and low-latency inference for real-world retention workflows.
 
-Customer acquisition costs significantly more than retention — yet most businesses only react to churn *after* it happens. A customer cancels their subscription, and the company sends a discount. Too late.
+## Customer Segmentation
 
-The goal here is to **predict churn before it happens**, identify *which* customers are both high-value and at risk, and enable targeted retention campaigns that maximize ROI. This is a classic ML problem, but the real challenge is making it actionable: fast enough for real-time scoring, interpretable enough for business stakeholders to trust.
+This system predicts which customers are most likely to churn, explains the model's decision drivers, and segments customers into business-ready risk groups.
+It combines a leak-free preprocessing pipeline, Optuna-tuned XGBoost model training, SHAP-based explanations, and an API-first deployment path.
+
+The platform is suitable for:
+- customer success and retention teams
+- product analytics and growth teams
+- portfolio-ready ML engineering demonstrations
+- production inference behind FastAPI or containers
+
+## Business Problem
+
+Subscription and telecom businesses lose revenue when high-value customers silently disengage. A strong churn model helps teams:
+- identify at-risk accounts before cancellation
+- prioritize retention outreach by expected customer value
+- explain why the model believes a customer is at risk
+- measure the impact of retention campaigns over time
+
+The business goal is not just prediction accuracy. It is actionable churn intelligence that supports intervention decisions.
 
 ## System Design
 
 The system has three interconnected components:
 
+```Raw Customer Data
+        ↓
+Data Cleaning & Preprocessing
+        ↓
+ ┌──────────────────────────────┐
+ │   Feature Engineering Layer  │
+ │  • Encoding                  │
+ │  • Scaling                   │
+ │  • Imbalance Handling        │
+ │  • Train/Test Split          │
+ └──────────────┬───────────────┘
+                ↓
+ ┌──────────────────────────────┐
+ │    XGBoost Churn Model       │  ← Who is likely to churn?
+ │  • Optuna Hyperparameter     │
+ │    Optimization              │
+ │  • ROC-AUC Optimization      │
+ │  • Threshold Tuning          │
+ └──────────────┬───────────────┘
+                ↓
+ ┌──────────────────────────────┐
+ │      Model Evaluation        │
+ │  • Confusion Matrix          │
+ │  • ROC Curve                 │
+ │  • Precision-Recall Curve    │
+ │  • Feature Importance        │
+ └──────────────┬───────────────┘
+                ↓
+ ┌──────────────────────────────┐
+ │     SHAP Explainability      │  ← Why are customers at risk?
+ │  • Global Feature Impact     │
+ │  • Local Prediction Analysis │
+ │  • Churn Driver Discovery    │
+ └──────────────┬───────────────┘
+                ↓
+ ┌──────────────────────────────┐
+ │   Production Deployment      │
+ │  • FastAPI Architecture      │
+ │  • MLflow Tracking (Planned) │
+ │  • Docker Deployment         │
+ └──────────────────────────────┘
 ```
-Raw Customer Data
-       ↓
-Feature Engineering Pipeline
-       ↓
-   ┌───────────────────────────┐
-   │   Customer Segmentation   │  ← Who are our customers?
-   │   (K-Means / RFM)         │
-   └─────────────┬─────────────┘
-                 ↓
-   ┌───────────────────────────┐
-   │   Churn Prediction Model  │  ← Who is about to leave?
-   │   (XGBoost Classifier)    │
-   └─────────────┬─────────────┘
-                 ↓
-   ┌───────────────────────────┐
-   │   SHAP Explainability     │  ← Why are they at risk?
-   └─────────────┬─────────────┘
-                 ↓
-   FastAPI Real-Time Scoring Endpoints
+
+### Pipeline Flow
+1. Data is loaded from the Telco churn dataset.
+2. Features are cleaned and validated.
+3. Train, validation, and test splits are created with stratification.
+4. A ColumnTransformer fits only on training data to prevent leakage.
+5. Optuna tunes XGBoost hyperparameters.
+6. Evaluation metrics and artifacts are logged to MLflow.
+7. SHAP generates global and local explanations.
+8. FastAPI serves predictions and risk drivers from cached artifacts.
+
+# ML Pipeline
+
+### 1. Preprocessing
+- Handles missing values with median/mode imputation.
+- Splits features into numeric and categorical groups.
+- Scales numeric fields with StandardScaler.
+- Encodes categorical fields with OneHotEncoder.
+- Fits preprocessing only on training data.
+
+### 2. Modeling
+- Uses XGBoost as the main classifier.
+- Handles class imbalance through `scale_pos_weight`.
+- Tunes hyperparameters with Optuna.
+- Uses stratified train/validation/test splits.
+
+### 3. Evaluation
+- Primary metric: ROC-AUC.
+- Secondary metrics: Precision, Recall, F1, PR-AUC, Accuracy.
+- Threshold optimization is applied instead of hard-coding 0.5.
+- Confusion matrix, ROC curve, and PR curve artifacts are generated.
+
+# Evaluation Results
+
+The XGBoost model achieved an accuracy of **77.14%** with a precision of **51.21%**, recall of **68.46%**, and an F1-score of **58.59%** on the test dataset. The model obtained a strong **ROC-AUC score of 0.8357** and a **PR-AUC score of 0.6334**, indicating good discrimination capability on imbalanced churn data.
+
+Using an optimal classification threshold of **0.54**, the model achieved its best F1-score of **0.5981**.
+
+From the confusion matrix:
+- **720** customers were correctly classified as non-churners.
+- **191** customers were correctly identified as churners.
+- **182** non-churn customers were incorrectly predicted as churners.
+- **88** churn customers were missed by the model.
+
+SHAP analysis showed that the most important features influencing churn prediction were:
+- Customer tenure
+- Contract type
+- Monthly charges
+- Internet service type
+- Online security and tech support services
+
+<Terminal folder="metadata.json">
 ```
-
-## Customer Segmentation
-
-Before predicting churn, the system segments customers using **RFM analysis** (Recency, Frequency, Monetary value) combined with clustering. This answers: which customers are actually worth retaining?
-
-Targeting a low-value customer with a retention campaign costs the same as targeting a high-value one — but the return is orders of magnitude lower. Segmentation ensures retention resources are allocated intelligently.
-
-Segments identified:
-- **Champions** — high frequency, high value, recent activity
-- **At-Risk High-Value** — previously champions, now declining
-- **Hibernating** — low recency, moderate historical value
-- **New Customers** — insufficient history to classify definitively
-
-The churn model is then applied specifically to the **At-Risk High-Value** segment — where intervention has the highest expected return.
-
-## Churn Prediction — XGBoost
-
-An XGBoost gradient boosting classifier is trained on engineered features:
-
-- Behavioral features: login frequency, feature usage patterns, support ticket history
-- Engagement trends: week-over-week and month-over-month activity changes
-- Account features: contract type, tenure, billing history
-- Support signals: number of complaints, unresolved tickets
-
-XGBoost was chosen for its:
-- Strong performance on tabular data with mixed feature types
-- Native handling of missing values
-- Fast inference — critical for the real-time API requirement
+{
+  "model_type": "XGBoost",
+  "target_column": "Churn",
+  "hyperparameters": {
+    "max_depth": 11,
+    "learning_rate": 0.030834348179355788,
+    "n_estimators": 369,
+    "subsample": 0.5102922471479012,
+    "colsample_bytree": 0.9849549260809971,
+    "min_child_weight": 9,
+    "gamma": 1.0616955533913808,
+    "scale_pos_weight": 3.237934904601571,
+    "random_state": 42,
+    "n_jobs": -1,
+    "verbosity": 0
+  },
+  "metrics": {
+    "test": {
+      "accuracy": 0.7713801862828111,
+      "precision": 0.5120643431635389,
+      "recall": 0.6845878136200717,
+      "f1": 0.5858895705521472,
+      "roc_auc": 0.8356539430496944,
+      "pr_auc": 0.633403358537845,
+      "optimal_threshold": 0.54,
+      "optimal_f1": 0.5980707395498392
+    }
+  },
+  "model_path": "models\\churn_model.pkl",
+  "preprocessor_path": "models\\preprocessor.pkl",
+  "label_encoder_path": "models\\label_encoder.pkl"
+}
+```
+</Terminal>
 
 ## Explainability — SHAP
 
@@ -76,53 +174,27 @@ For each at-risk customer, the system surfaces:
 
 This transforms the system from a black box into an **actionable diagnostic tool** — account managers know exactly what to address in a retention call.
 
-## Real-Time API — FastAPI
+<Image link="/images/projects/churn/summary_plot.png" alt="SHAP Summary Plot: Global Churn Drivers" height="400" width="200" />
 
-The trained models are deployed as FastAPI endpoints:
+<Image link="/images/projects/churn/summary_bar_plot.png" alt="SHAP BAR Summary: Mean Absolute Impact on Churn" height="100" width="200" />
 
-```
-POST /predict/churn
-{
-  "customer_id": "C_12345",
-  "features": { ... }
-}
+## Key Insights
 
-→ Response:
-{
-  "churn_probability": 0.74,
-  "segment": "at_risk_high_value",
-  "top_risk_factors": [
-    { "feature": "days_since_last_login", "impact": "+0.21" },
-    { "feature": "open_tickets", "impact": "+0.18" }
-  ]
-}
-```
+- Strong churn detection performance with **ROC-AUC = 0.8357**
+- Model optimized toward higher recall for churn identification
+- Captures **68.46%** of churn customers
+- Top churn drivers:
+  - Tenure
+  - Contract type
+  - Monthly charges
+  - Fiber optic service
 
-Latency is kept under 100ms end-to-end — fast enough for integration into CRM dashboards and customer-facing internal tools.
+# Output Images
 
-## Experiment Tracking — MLflow
+<Image link="/images/projects/churn/confusion_matrix.png" alt="Confusion Matrix: Churn Prediction Results" height="400" width="400" />
 
-All training runs are tracked in MLflow: hyperparameters, metrics, feature sets, and model artifacts. This enables reproducibility and makes it straightforward to compare model versions before promoting to production.
+<Image link="/images/projects/churn/roc_curve.png" alt="ROC Curve: Churn Model Performance" height="400" width="400" />
 
-## Simulated Retention Impact
+<Image link="/images/projects/churn/precision_recall_curve.png" alt="Precision-Recall Curve: Churn Model Performance" height="400" width="400" />
 
-By targeting the **high-value at-risk segment** identified by the combined segmentation + churn model:
-- Simulated **18% improvement** in overall retention
-- Estimated **15–20% churn reduction** within the high-value segment through targeted campaigns (personalized offers, proactive support outreach, account manager check-ins)
-
-Simulation methodology: historical churn rates were used to model what retention would have looked like had interventions been applied to the predicted at-risk cohort.
-
-## Key Learnings
-
-**Segmentation before prediction matters.** A model trained on all customers learns a blurry signal. Restricting training and inference to relevant segments dramatically improves precision.
-
-**SHAP changes how stakeholders engage with ML.** Feature importance summaries moved conversations from *"should we trust this?"* to *"here's what we're going to do about customer X."*
-
-**Threshold tuning is underrated.** The default 0.5 threshold was wrong for this use case. A higher recall threshold (catching more churners, accepting some false positives) was optimal given the business cost asymmetry.
-
-## What's Next
-
-- Survival analysis (time-to-churn) for more nuanced risk scoring
-- Cohort-level trend monitoring with automated alerts
-- A/B testing framework to measure real retention lift from model-driven interventions
-- Integration with CRM (Salesforce/HubSpot) via webhook
+<Image link="/images/projects/churn/mlflow screenshot.png" alt="MLflow Screenshot: Churn Model Training" height="400" width="400" />

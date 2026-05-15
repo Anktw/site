@@ -46,20 +46,20 @@
     {
         "id": 21,
         "title": "Customer Segmentation & Churn Prediction System",
-        "desc": "Predicts customer churn and segments customers based on various features.",
-        "github": "https://github.com/anktw/Customer-Segmentation-and-Churn-Prediction"
+        "desc": "Production-grade customer churn prediction and segmentation platform built with XGBoost, SHAP, MLflow, FastAPI, and Docker.",
+        "github": "https://github.com/Anktw/Customer-Segmentation-Churn-Prediction-System"
     },
     {
         "id": 23,
-        "title": "Real-Time Sign Language Translation System",
-        "desc": "Translates sign language gestures captured via flex sensors into speech in real time — achieving 25ms inference latency and 120ms end-to-end response.",
-        "github": "https://github.com/Anktw/Akatsuki"
+        "title": "RAG-Based Patient Review Question-Answering Chatbot",
+        "desc": "Retrieval-Augmented Generation (RAG) system to answer questions from patient reviews. This repository contains a Jupyter notebook that demonstrates how to build a RAG-based chatbot for answering questions based on patient reviews.",
+        "github": "https://github.com/Anktw/RAG-Based-Patient-Review-Question-Answering-Chatbot"
     },
     {
         "id": 25,
-        "title": "RAG-Based Patient Review Question-Answering Chatbot",
-        "desc": "An AI system that helps hospitals instantly analyze patient reviews and answer operational queries using retrieved real-world feedback.",
-        "github": "https://github.com/Anktw/RAG-Based-Patient-Review-Question-Answering-Chatbot"
+        "title": "Real-Time Sign Language Translation System",
+        "desc": "Translates sign language gestures captured via flex sensors into speech in real time — achieving 25ms inference latency and 120ms end-to-end response.",
+        "github": "https://github.com/Anktw/Akatsuki"
     },
     {
         "id": 27,
